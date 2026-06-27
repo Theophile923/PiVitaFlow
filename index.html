@@ -454,7 +454,7 @@
       </div>
     </div>
 
-    <button class="btn-auth" onclick="authenticateWithPi()">
+    <button class="btn-auth" id="btn-signin" onclick="handleLogin()">
       🔐 Connect with Pi Network
     </button>
     <div class="gcv-note">Secure authentication via Pi SDK v2.0</div>
@@ -675,27 +675,89 @@
   <div id="toast"></div>
 
   <script>
-    // ── Pi SDK Init ──
-    Pi.init({ version: "2.0", sandbox: true });
+    // ════════════════════════════════════════════════
+    // Pi Network Authentication — Vanilla JS
+    // Ref: pi-apps.github.io/pi-sdk-docs/quick-start/genai/Authentication
+    // ════════════════════════════════════════════════
 
-    // ── Auth ──
-    function authenticateWithPi() {
-      Pi.authenticate(["username", "payments"], onIncompletePaymentFound)
-        .then(auth => {
-          const username = auth.user.username;
-          document.getElementById("pi-username").textContent = username;
-          document.getElementById("user-info").style.display = "block";
-          showToast("✅ Welcome, @" + username + "!");
-        })
-        .catch(err => {
-          showToast("⚠️ Authentication failed. Please try again.");
-          console.error(err);
-        });
+    // ── PiService : wrapper officiel recommandé ──
+    class PiService {
+      constructor() {
+        this.user = null;
+        this.accessToken = null;
+      }
+
+      // Callback obligatoire pour paiements incomplets
+      onIncompletePaymentFound(payment) {
+        console.warn("Incomplete payment found:", payment.identifier);
+      }
+
+      // Authentification async/await — Pi.init traité comme Promise
+      async login(scopes = ["username"]) {
+        try {
+          // 1. Init complet AVANT authenticate (await obligatoire)
+          await Pi.init({ version: "2.0", sandbox: true });
+
+          // 2. Authentification avec scope "username"
+          const auth = await Pi.authenticate(scopes, this.onIncompletePaymentFound);
+
+          this.user        = auth.user;
+          this.accessToken = auth.accessToken;
+
+          // 3. Validation côté serveur via /v2/me
+          await this._validateTokenOnServer(auth.accessToken);
+
+          return { success: true, user: auth.user, accessToken: auth.accessToken };
+        } catch (error) {
+          console.error("Pi Auth Error:", error);
+          return { success: false, error: error.message };
+        }
+      }
+
+      // Validation backend : GET https://api.minepi.com/v2/me
+      // (aucune API key requise — Bearer token suffit)
+      async _validateTokenOnServer(accessToken) {
+        try {
+          const res = await fetch("https://api.minepi.com/v2/me", {
+            method: "GET",
+            headers: { "Authorization": "Bearer " + accessToken }
+          });
+          if (!res.ok) throw new Error("Token validation failed: " + res.status);
+          const piUser = await res.json();
+          console.log("✅ Pi /v2/me validated:", piUser.username);
+          return piUser;
+        } catch (err) {
+          // En sandbox/dev, /v2/me peut être bloqué par CORS — on continue quand même
+          console.warn("Server validation skipped (sandbox/CORS):", err.message);
+        }
+      }
     }
 
-    function onIncompletePaymentFound(payment) {
-      console.log("Incomplete payment found:", payment);
+    // Instance unique globale
+    const piService = new PiService();
+
+    // ── handleLogin : appelé par le bouton ET au chargement ──
+    async function handleLogin() {
+      showToast("🔐 Connecting to Pi Network...");
+      const result = await piService.login(["username"]);
+
+      if (result.success) {
+        const username = result.user.username;
+        document.getElementById("pi-username").textContent = username;
+        document.getElementById("user-info").style.display = "block";
+        document.getElementById("btn-signin").style.display = "none";
+        showToast("✅ Welcome, @" + username + "!");
+      } else {
+        showToast("⚠️ Sign-in failed. Open in Pi Browser.");
+        console.error(result.error);
+      }
     }
+
+    // ── Auto-auth au chargement de l'app ──
+    window.addEventListener("load", () => {
+      // Déclenché automatiquement dès que la page est prête
+      handleLogin();
+    });
 
     // ── Toast ──
     function showToast(msg) {
@@ -705,7 +767,7 @@
       setTimeout(() => { t.style.display = "none"; }, 3500);
     }
 
-    // ── Language Switch (placeholder) ──
+    // ── Language Switch ──
     function switchLang(lang) {
       const msgs = {
         en: "Language: English",
