@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PiVitaFlow — Your Lifecycle Partner on Pi Network</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --pi-blue: #4A6BFF;
+      --rw-green: #00A651;
+      --gold: #FFB300;
+      --dark: #1A1A2E;
+      --light: #F0F4FF;
+      --orange: #E67E22;
+      --red: #C0392B;
+      --white: #FFFFFF;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      background: var(--dark);
+      color: var(--white);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #0D0D1E 0%, #1A1A2E 50%, #0D1B4B 100%);
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--pi-blue);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--pi-blue), var(--rw-green));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 900; color: white;
+    }
+
+    .logo-text { font-size: 20px; font-weight: 800; color: var(--white); }
+    .logo-text span { color: var(--pi-blue); }
+
+    .lang-selector {
+      background: rgba(74,107,255,0.15);
+      border: 1px solid var(--pi-blue);
+      color: var(--white);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #0D0D1E 0%, #1A1A2E 60%, #0D1B4B 100%);
+      padding: 50px 20px 40px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(74,107,255,0.2);
+      border: 1px solid var(--pi-blue);
+      color: var(--pi-blue);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+    }
+
+    .hero h1 {
+      font-size: 32px;
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--white), var(--pi-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 15px;
+      color: #A0AEC0;
+      max-width: 500px;
+      margin: 0 auto 24px;
+      line-height: 1.6;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--pi-blue);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ── AUTH BUTTON ── */
+    .btn-auth {
+      background: linear-gradient(135deg, var(--pi-blue), #6B8AFF);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      max-width: 320px;
+      margin-bottom: 10px;
+      transition: transform 0.2s;
+    }
+
+    .btn-auth:hover { transform: translateY(-2px); }
+
+    .gcv-note {
+      font-size: 11px;
+      color: #718096;
+      margin-top: 8px;
+    }
+
+    /* ── GCV BANNER ── */
+    .gcv-banner {
+      background: rgba(255,179,0,0.1);
+      border: 1px solid var(--gold);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin: 20px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--gold);
+    }
+
+    /* ── SECTION TITLES ── */
+    .section {
+      padding: 32px 20px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
+
+    .section-title span { color: var(--pi-blue); }
+
+    .section-sub {
+      font-size: 13px;
+      color: #718096;
+      margin-bottom: 20px;
+    }
+
+    /* ── DOMAIN CARDS ── */
+    .domains-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .domain-card {
+      background: linear-gradient(135deg, #1E2240, #252B4A);
+      border: 1px solid rgba(74,107,255,0.3);
+      border-radius: 14px;
+      padding: 18px;
+      transition: border-color 0.2s;
+    }
+
+    .domain-card:hover { border-color: var(--pi-blue); }
+
+    .domain-card.phase2 {
+      border-color: rgba(230,126,34,0.3);
+      opacity: 0.85;
+    }
+
+    .domain-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .domain-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .domain-icon {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+
+    .domain-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .domain-priority {
+      font-size: 11px;
+      color: #718096;
+      margin-top: 2px;
+    }
+
+    .badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-demo { background: rgba(0,166,81,0.2); color: var(--rw-green); border: 1px solid var(--rw-green); }
+    .badge-live { background: rgba(74,107,255,0.2); color: var(--pi-blue); border: 1px solid var(--pi-blue); }
+    .badge-soon { background: rgba(230,126,34,0.2); color: var(--orange); border: 1px solid var(--orange); }
+
+    .domain-desc {
+      font-size: 13px;
+      color: #A0AEC0;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .domain-price {
+      background: rgba(74,107,255,0.1);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--pi-blue);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .domain-price .free { color: var(--rw-green); font-weight: 700; }
+    .domain-price .paid { color: var(--gold); font-weight: 700; }
+
+    /* ── PRICING TABLE ── */
+    .pricing-section {
+      background: #0D0D1E;
+      padding: 32px 20px;
+    }
+
+    .pricing-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .pricing-card {
+      background: linear-gradient(135deg, #1E2240, #252B4A);
+      border: 1px solid rgba(74,107,255,0.3);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .pricing-card.featured {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, #2A2210, #2E2A12);
+    }
+
+    .pricing-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+
+    .pricing-pi {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--pi-blue);
+    }
+
+    .pricing-usd {
+      font-size: 12px;
+      color: #718096;
+      margin-top: 2px;
+    }
+
+    .pricing-note {
+      font-size: 11px;
+      color: #718096;
+      font-style: italic;
+      margin-top: 4px;
+    }
+
+    /* ── LEGAL FOOTER ── */
+    .legal {
+      background: #0A0A1A;
+      padding: 20px;
+      border-top: 1px solid rgba(74,107,255,0.2);
+    }
+
+    .legal-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--orange);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .legal-text {
+      font-size: 11px;
+      color: #718096;
+      line-height: 1.6;
+    }
+
+    .legal-text a {
+      color: var(--pi-blue);
+      text-decoration: none;
+    }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: 20px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--rw-green);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      display: none;
+      z-index: 999;
+      text-align: center;
+      max-width: 300px;
+    }
+
+    /* ── USER INFO ── */
+    #user-info {
+      display: none;
+      background: rgba(0,166,81,0.1);
+      border: 1px solid var(--rw-green);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin: 16px 20px 0;
+      font-size: 13px;
+      color: var(--rw-green);
+      text-align: center;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(74,107,255,0.3), transparent);
+      margin: 0 20px;
+    }
+
+    /* ── ROADMAP ── */
+    .roadmap {
+      background: rgba(230,126,34,0.05);
+      border: 1px solid rgba(230,126,34,0.2);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+
+    .roadmap-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--orange);
+      margin-bottom: 8px;
+    }
+
+    .roadmap-item {
+      font-size: 12px;
+      color: #A0AEC0;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .roadmap-item:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">π</div>
+      <div class="logo-text">Pi<span>Vita</span>Flow</div>
+    </div>
+    <select class="lang-selector" onchange="switchLang(this.value)">
+      <option value="en">🌍 EN</option>
+      <option value="fr">🇫🇷 FR</option>
+      <option value="rw">🇷🇼 RW</option>
+      <option value="sw">🌍 SW</option>
+    </select>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">🏆 PI APP STUDIO COMPETITION 2026</div>
+    <h1>Your Lifecycle Partner<br/>on Pi Network</h1>
+    <p>6 powerful domains. Global standards. Local frameworks.<br/>Rwanda-ready. All payments in Pi.</p>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-number">6</div>
+        <div class="stat-label">Domains</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">4</div>
+        <div class="stat-label">Languages</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">3+</div>
+        <div class="stat-label">Countries</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">π</div>
+        <div class="stat-label">Payments</div>
+      </div>
+    </div>
+
+    <button class="btn-auth" onclick="authenticateWithPi()">
+      🔐 Connect with Pi Network
+    </button>
+    <div class="gcv-note">Secure authentication via Pi SDK v2.0</div>
+  </div>
+
+  <!-- USER INFO (shown after login) -->
+  <div id="user-info">✅ Connected as <strong id="pi-username"></strong> — Welcome to PiVitaFlow!</div>
+
+  <!-- GCV BANNER -->
+  <div class="gcv-banner">
+    ⚠️ <strong>GCV Reference:</strong> 1π = $314,159 (Pi community internal standard).
+    USD/FRW prices are estimates only. Actual value depends on market rate at transaction time.
+  </div>
+
+  <!-- DOMAINS -->
+  <div class="section">
+    <div class="section-title">🔹 The <span>6 Domains</span></div>
+    <div class="section-sub">Choose your lifecycle tool — powered by Pi Network</div>
+
+    <div class="domains-grid">
+
+      <!-- Domain 1 -->
+      <div class="domain-card">
+        <div class="domain-header">
+          <div class="domain-left">
+            <div class="domain-icon" style="background:linear-gradient(135deg,#4A6BFF,#6B8AFF)">📊</div>
+            <div>
+              <div class="domain-name">PiBusiness Plan</div>
+              <div class="domain-priority">Priority #1 — Main Demo</div>
+            </div>
+          </div>
+          <span class="badge badge-demo">✅ DEMO</span>
+        </div>
+        <div class="domain-desc">
+          Create bankable business plans with the CAPMER framework. Auto-calculate ROI, IRR, DSCR, break-even. Compliant with RRA (Rwanda), KRA (Kenya), IRS (USA). Generate PDF reports.
+        </div>
+        <div class="domain-price">
+          <span>Preview: <span class="free">Free</span></span>
+          <span>Deep Study Report: <span class="paid">3π</span></span>
+        </div>
+      </div>
+
+      <!-- Domain 2 -->
+      <div class="domain-card">
+        <div class="domain-header">
+          <div class="domain-left">
+            <div class="domain-icon" style="background:linear-gradient(135deg,#00A651,#00C864)">📜</div>
+            <div>
+              <div class="domain-name">SmartPi Heritage</div>
+              <div class="domain-priority">Priority #2</div>
+            </div>
+          </div>
+          <span class="badge badge-live">🔵 LIVE</span>
+        </div>
+        <div class="domain-desc">
+          Create immutable succession contracts on Pi Network. Visual editor, multi-signature validation, TXID as proof. PDF stored on IPFS (AES-256). Rwanda Law N°22/99 compliant.
+        </div>
+        <div class="domain-price">
+          <span>Contract creation: <span class="paid">3π</span></span>
+          <span>Verification: <span class="paid">0.1π</span></span>
+        </div>
+      </div>
+
+      <!-- Domain 3 -->
+      <div class="domain-card">
+        <div class="domain-header">
+          <div class="domain-left">
+            <div class="domain-icon" style="background:linear-gradient(135deg,#E74C3C,#FF6B6B)">🏥</div>
+            <div>
+              <div class="domain-name">PiHealth Care</div>
+              <div class="domain-priority">Priority #3</div>
+            </div>
+          </div>
+          <span class="badge badge-live">🔵 LIVE</span>
+        </div>
+        <div class="domain-desc">
+          Simulate health insurance coverage adapted to the Rwandan Mutuelle de Santé model. Compare RSSB vs Sanlam vs SONARWA. Ubudehe category selector (1–4). Quotes in Pi/$/FRW.
+        </div>
+        <div class="domain-price">
+          <span>Simulation: <span class="free">Free</span></span>
+          <span>Full PDF Report: <span class="paid">3π</span></span>
+        </div>
+      </div>
+
+      <!-- Domain 4 -->
+      <div class="domain-card">
+        <div class="domain-header">
+          <div class="domain-left">
+            <div class="domain-icon" style="background:linear-gradient(135deg,#F39C12,#FFB300)">🏗️</div>
+            <div>
+              <div class="domain-name">PiSmart Builder</div>
+              <div class="domain-priority">Priority #4</div>
+            </div>
+          </div>
+          <span class="badge badge-live">🔵 LIVE</span>
+        </div>
+        <div class="domain-desc">
+          Construction cost calculator for engineers and architects. CAPMER framework adapted to building projects. RHA (Rwanda), NCA (Kenya), USA codes compliant. 2D visualization.
+        </div>
+        <div class="domain-price">
+          <span>Full Estimate PDF: <span class="paid">3π</span></span>
+        </div>
+      </div>
+
+      <!-- Domain 5 -->
+      <div class="domain-card">
+        <div class="domain-header">
+          <div class="domain-left">
+            <div class="domain-icon" style="background:linear-gradient(135deg,#8E44AD,#A855F7)">🧾</div>
+            <div>
+              <div class="domain-name">PiTax</div>
+              <div class="domain-priority">Priority #5</div>
+            </div>
+          </div>
+          <span class="badge badge-live">🔵 LIVE</span>
+        </div>
+        <div class="domain-desc">
+          Advanced tax calculator for professionals. Rwanda (RRA), Kenya (KRA), USA (IRS/FICA). Optimization strategies: Foreign Tax Credit, Pi conversion deferral, Texas residency.
+        </div>
+        <div class="domain-price">
+          <span>Tax Report PDF: <span class="paid">3π</span></span>
+        </div>
+      </div>
+
+      <!-- Domain 6 — Phase 2 -->
+      <div class="domain-card phase2">
+        <div class="domain-header">
+          <div class="domain-left">
+            <div class="domain-icon" style="background:linear-gradient(135deg,#E67E22,#F39C12)">🎙️</div>
+            <div>
+              <div class="domain-name">PiTalk</div>
+              <div class="domain-priority">Communication — Phase 2</div>
+            </div>
+          </div>
+          <span class="badge badge-soon">🔜 PHASE 2</span>
+        </div>
+        <div class="domain-desc">
+          Real-time voice calls with AI translation (&lt;2s latency). Each pioneer speaks their own language. WebRTC + Google Media Translation API. Up to 10 participants per call.
+        </div>
+        <div class="roadmap">
+          <div class="roadmap-title">🗺️ Phase 2 Roadmap</div>
+          <div class="roadmap-item">✦ WebRTC infrastructure setup</div>
+          <div class="roadmap-item">✦ Google Media Translation integration (Kinyarwanda ↔ EN/FR/ZH)</div>
+          <div class="roadmap-item">✦ IPFS encrypted call recording (with consent)</div>
+          <div class="roadmap-item">✦ PiTalk Premium: 0.1π/month</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PRICING -->
+  <div class="pricing-section">
+    <div class="section-title" style="margin-bottom:6px">💰 <span>Pricing</span></div>
+    <div class="section-sub">All payments processed via Pi SDK v2.0</div>
+
+    <div class="pricing-cards">
+
+      <div class="pricing-card">
+        <div class="pricing-name">🆓 Free Preview</div>
+        <div class="pricing-pi">0π</div>
+        <div class="pricing-usd">Basic simulations on all domains</div>
+      </div>
+
+      <div class="pricing-card featured">
+        <div class="pricing-name">📅 Monthly Subscription</div>
+        <div class="pricing-pi">0.25π / month</div>
+        <div class="pricing-usd">~$78,540 (ref. GCV) | ~102,102,000 FRW</div>
+        <div class="pricing-note">⚠️ USD/FRW estimated at GCV rate</div>
+      </div>
+
+      <div class="pricing-card">
+        <div class="pricing-name">📅 Quarterly Subscription</div>
+        <div class="pricing-pi">0.7π / quarter</div>
+        <div class="pricing-usd">~$219,911 (ref. GCV) | ~285,884,000 FRW</div>
+        <div class="pricing-note">⚠️ USD/FRW estimated at GCV rate</div>
+      </div>
+
+      <div class="pricing-card">
+        <div class="pricing-name">📅 Annual Subscription</div>
+        <div class="pricing-pi">2.75π / year</div>
+        <div class="pricing-usd">~$863,937 (ref. GCV) | ~1,123,118,000 FRW</div>
+        <div class="pricing-note">⚠️ USD/FRW estimated at GCV rate</div>
+      </div>
+
+      <div class="pricing-card featured">
+        <div class="pricing-name">📄 Deep Study (any domain)</div>
+        <div class="pricing-pi">3π</div>
+        <div class="pricing-usd">~$942,477 (ref. GCV) | ~1,225,220,000 FRW</div>
+        <div class="pricing-note">Full PDF report delivered within 7 business days</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- LEGAL FOOTER -->
+  <div class="legal">
+    <div class="legal-title">⚖️ Legal Disclaimer</div>
+    <div class="legal-text">
+      PiVitaFlow provides educational and advisory tools based on international standards and local frameworks.
+      For legal, financial, or medical advice, consult a licensed professional in your jurisdiction.
+      SmartPi Heritage contracts are digital supplements and must be validated by a notary for full legal compliance.
+      In Rwanda, succession contracts must comply with <strong>Law N°22/99 of 12/11/1999</strong>.
+      Prices displayed in USD/FRW are estimates based on the Pi Network community GCV (1π = $314,159).
+      Actual transaction values depend on market rates at time of payment.
+      <br/><br/>
+      <a href="privacy.html">Privacy Policy</a> ·
+      Contact: <a href="mailto:theophileh56@gmail.com">theophileh56@gmail.com</a> ·
+      Built by Theophile HAKIZIMANA for Pi App Studio Competition 2026
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast"></div>
+
+  <script>
+    // ── Pi SDK Init ──
+    Pi.init({ version: "2.0", sandbox: true });
+
+    // ── Auth ──
+    function authenticateWithPi() {
+      Pi.authenticate(["username", "payments"], onIncompletePaymentFound)
+        .then(auth => {
+          const username = auth.user.username;
+          document.getElementById("pi-username").textContent = username;
+          document.getElementById("user-info").style.display = "block";
+          showToast("✅ Welcome, @" + username + "!");
+        })
+        .catch(err => {
+          showToast("⚠️ Authentication failed. Please try again.");
+          console.error(err);
+        });
+    }
+
+    function onIncompletePaymentFound(payment) {
+      console.log("Incomplete payment found:", payment);
+    }
+
+    // ── Toast ──
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.style.display = "block";
+      setTimeout(() => { t.style.display = "none"; }, 3500);
+    }
+
+    // ── Language Switch (placeholder) ──
+    function switchLang(lang) {
+      const msgs = {
+        en: "Language: English",
+        fr: "Langue : Français",
+        rw: "Ururimi: Ikinyarwanda",
+        sw: "Lugha: Kiswahili"
+      };
+      showToast(msgs[lang] || "Language switched");
+    }
+  </script>
+</body>
+</html>
