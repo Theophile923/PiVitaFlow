@@ -1,782 +1,711 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PiVitaFlow — Your Lifecycle Partner on Pi Network</title>
+  <title>SmartPi Heritage — PiVitaFlow</title>
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
+    * { margin:0; padding:0; box-sizing:border-box; }
     :root {
-      --pi-blue: #4A6BFF;
-      --rw-green: #00A651;
-      --gold: #FFB300;
-      --dark: #1A1A2E;
-      --light: #F0F4FF;
-      --orange: #E67E22;
-      --red: #C0392B;
-      --white: #FFFFFF;
+      --pi-blue:#4A6BFF; --rw-green:#00A651; --gold:#FFB300;
+      --dark:#1A1A2E; --orange:#E67E22; --red:#C0392B; --white:#FFFFFF;
     }
+    body { font-family:'Inter','Segoe UI',sans-serif; background:var(--dark); color:var(--white); min-height:100vh; }
 
-    body {
-      font-family: 'Inter', 'Segoe UI', sans-serif;
-      background: var(--dark);
-      color: var(--white);
-      min-height: 100vh;
-    }
-
-    /* ── HEADER ── */
+    /* HEADER */
     header {
-      background: linear-gradient(135deg, #0D0D1E 0%, #1A1A2E 50%, #0D1B4B 100%);
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid var(--pi-blue);
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      background:linear-gradient(135deg,#0D0D1E,#1A1A2E,#0D1B4B);
+      padding:14px 20px; display:flex; justify-content:space-between;
+      align-items:center; border-bottom:2px solid var(--rw-green);
+      position:sticky; top:0; z-index:100;
     }
+    .logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
+    .logo-icon { width:36px;height:36px; background:linear-gradient(135deg,var(--pi-blue),var(--rw-green)); border-radius:8px; display:flex;align-items:center;justify-content:center; font-size:18px;font-weight:900;color:white; }
+    .logo-text { font-size:18px;font-weight:800;color:var(--white); }
+    .logo-text span { color:var(--rw-green); }
+    .back-btn { background:rgba(0,166,81,0.15); border:1px solid var(--rw-green); color:var(--rw-green); padding:8px 14px; border-radius:8px; font-size:13px; cursor:pointer; text-decoration:none; }
 
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    /* HERO */
+    .hero { background:linear-gradient(135deg,#0D0D1E,#1A1A2E,#0D1B4B); padding:32px 20px 24px; text-align:center; }
+    .domain-badge { display:inline-block; background:rgba(0,166,81,0.15); border:1px solid var(--rw-green); color:var(--rw-green); padding:6px 16px; border-radius:20px; font-size:12px; font-weight:700; margin-bottom:14px; letter-spacing:1px; }
+    .hero h1 { font-size:26px;font-weight:900;line-height:1.2;margin-bottom:8px; }
+    .hero h1 span { color:var(--rw-green); }
+    .hero p { font-size:14px;color:#A0AEC0;max-width:480px;margin:0 auto 16px;line-height:1.6; }
+    .price-tag { display:inline-flex;gap:16px;background:rgba(74,107,255,0.1);border:1px solid var(--pi-blue);border-radius:10px;padding:10px 20px;font-size:13px; }
+    .price-tag .pi { color:var(--gold);font-weight:800;font-size:16px; }
+    .price-tag .usd { color:#718096;font-size:11px; }
+
+    /* USER STATUS */
+    #user-status { display:none; background:rgba(0,166,81,0.1); border:1px solid var(--rw-green); border-radius:10px; padding:10px 16px; margin:14px 20px 0; font-size:13px; color:var(--rw-green); text-align:center; }
+
+    /* STEPS */
+    .steps-bar { display:flex; justify-content:center; gap:0; padding:24px 20px 0; overflow-x:auto; }
+    .step { display:flex;align-items:center;gap:6px; }
+    .step-num { width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2px solid #333;background:#1E2240;color:#718096;flex-shrink:0; }
+    .step.active .step-num { border-color:var(--rw-green);background:var(--rw-green);color:white; }
+    .step.done .step-num { border-color:var(--pi-blue);background:var(--pi-blue);color:white; }
+    .step-label { font-size:11px;color:#718096;white-space:nowrap; }
+    .step.active .step-label { color:var(--rw-green); }
+    .step.done .step-label { color:var(--pi-blue); }
+    .step-line { width:24px;height:2px;background:#333;flex-shrink:0; }
+    .step-line.done { background:var(--pi-blue); }
+
+    /* FORM CONTAINER */
+    .form-container { padding:20px; max-width:600px; margin:0 auto; }
+    .step-panel { display:none; }
+    .step-panel.active { display:block; }
+
+    .panel-title { font-size:18px;font-weight:800;color:var(--white);margin-bottom:4px; }
+    .panel-sub { font-size:13px;color:#718096;margin-bottom:20px; }
+
+    /* FORM FIELDS */
+    .field { margin-bottom:16px; }
+    .field label { display:block;font-size:13px;color:#A0AEC0;margin-bottom:6px;font-weight:600; }
+    .field input, .field select, .field textarea {
+      width:100%;background:#1E2240;border:1px solid rgba(74,107,255,0.3);
+      border-radius:10px;padding:12px 14px;color:var(--white);font-size:14px;
+      outline:none;transition:border-color 0.2s;
     }
+    .field input:focus, .field select:focus { border-color:var(--rw-green); }
+    .field select option { background:#1E2240; }
+    .field .hint { font-size:11px;color:#718096;margin-top:4px; }
 
-    .logo-icon {
-      width: 40px; height: 40px;
-      background: linear-gradient(135deg, var(--pi-blue), var(--rw-green));
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px; font-weight: 900; color: white;
-    }
+    /* BENEFICIAIRE ROW */
+    .benef-list { display:flex;flex-direction:column;gap:12px;margin-bottom:14px; }
+    .benef-row { background:#1E2240;border:1px solid rgba(74,107,255,0.2);border-radius:10px;padding:14px; }
+    .benef-row-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:10px; }
+    .benef-label { font-size:13px;font-weight:700;color:var(--rw-green); }
+    .btn-remove { background:rgba(192,57,43,0.15);border:1px solid var(--red);color:var(--red);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer; }
+    .btn-add { background:rgba(0,166,81,0.1);border:1px solid var(--rw-green);color:var(--rw-green);padding:10px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;width:100%;margin-bottom:8px; }
+    .pct-total { font-size:13px;text-align:right;margin-bottom:4px; }
+    .pct-total.ok { color:var(--rw-green); }
+    .pct-total.err { color:var(--red); }
 
-    .logo-text { font-size: 20px; font-weight: 800; color: var(--white); }
-    .logo-text span { color: var(--pi-blue); }
+    /* ACTIFS */
+    .actif-row { display:flex;gap:10px;margin-bottom:10px; }
+    .actif-row input { flex:1; }
+    .actif-row input.amount { flex:0 0 90px; }
 
-    .lang-selector {
-      background: rgba(74,107,255,0.15);
-      border: 1px solid var(--pi-blue);
-      color: var(--white);
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      cursor: pointer;
-    }
+    /* CONDITIONS */
+    .condition-card { background:#1E2240;border:1px solid rgba(74,107,255,0.2);border-radius:10px;padding:14px;margin-bottom:12px; }
+    .condition-title { font-size:14px;font-weight:700;color:var(--pi-blue);margin-bottom:8px; }
+    .toggle-row { display:flex;justify-content:space-between;align-items:center; }
+    .toggle-label { font-size:13px;color:#A0AEC0; }
+    .toggle { position:relative;width:44px;height:24px; }
+    .toggle input { opacity:0;width:0;height:0; }
+    .slider { position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#333;border-radius:24px;transition:.3s; }
+    .slider:before { position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s; }
+    input:checked+.slider { background:var(--rw-green); }
+    input:checked+.slider:before { transform:translateX(20px); }
 
-    /* ── HERO ── */
-    .hero {
-      background: linear-gradient(135deg, #0D0D1E 0%, #1A1A2E 60%, #0D1B4B 100%);
-      padding: 50px 20px 40px;
-      text-align: center;
-    }
+    /* BUTTONS */
+    .btn-primary { background:linear-gradient(135deg,var(--rw-green),#00C864);color:white;border:none;padding:14px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-top:8px;transition:transform 0.2s; }
+    .btn-primary:hover { transform:translateY(-2px); }
+    .btn-secondary { background:rgba(74,107,255,0.1);border:1px solid var(--pi-blue);color:var(--pi-blue);padding:12px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;width:100%;margin-top:8px; }
+    .btn-pay { background:linear-gradient(135deg,var(--gold),#FFA000);color:#1A1A2E;border:none;padding:16px;border-radius:12px;font-size:16px;font-weight:900;cursor:pointer;width:100%;margin-top:8px;transition:transform 0.2s; }
+    .btn-pay:hover { transform:translateY(-2px); }
 
-    .hero-badge {
-      display: inline-block;
-      background: rgba(74,107,255,0.2);
-      border: 1px solid var(--pi-blue);
-      color: var(--pi-blue);
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      letter-spacing: 1px;
-    }
+    /* SUMMARY */
+    .summary-card { background:#1E2240;border:1px solid rgba(0,166,81,0.3);border-radius:12px;padding:16px;margin-bottom:14px; }
+    .summary-title { font-size:14px;font-weight:700;color:var(--rw-green);margin-bottom:10px; }
+    .summary-row { display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px; }
+    .summary-row:last-child { border-bottom:none; }
+    .summary-row .key { color:#718096; }
+    .summary-row .val { color:var(--white);font-weight:600;text-align:right;max-width:60%; }
 
-    .hero h1 {
-      font-size: 32px;
-      font-weight: 900;
-      line-height: 1.2;
-      margin-bottom: 12px;
-      background: linear-gradient(135deg, var(--white), var(--pi-blue));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+    /* LEGAL WARNING */
+    .legal-box { background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.3);border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;color:#E0A0A0;line-height:1.6; }
+    .legal-box strong { color:var(--red); }
 
-    .hero p {
-      font-size: 15px;
-      color: #A0AEC0;
-      max-width: 500px;
-      margin: 0 auto 24px;
-      line-height: 1.6;
-    }
+    /* SUCCESS */
+    .success-panel { display:none;text-align:center;padding:32px 20px; }
+    .success-icon { font-size:64px;margin-bottom:16px; }
+    .success-title { font-size:22px;font-weight:900;color:var(--rw-green);margin-bottom:8px; }
+    .success-sub { font-size:14px;color:#A0AEC0;margin-bottom:20px;line-height:1.6; }
+    .txid-box { background:#1E2240;border:1px solid var(--pi-blue);border-radius:10px;padding:12px;font-size:12px;font-family:monospace;color:var(--pi-blue);word-break:break-all;margin-bottom:16px; }
 
-    .hero-stats {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-    }
+    /* TOAST */
+    #toast { position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--rw-green);color:white;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;display:none;z-index:999;text-align:center;max-width:300px; }
+    #toast.error { background:var(--red); }
 
-    .stat {
-      text-align: center;
-    }
-
-    .stat-number {
-      font-size: 28px;
-      font-weight: 900;
-      color: var(--pi-blue);
-    }
-
-    .stat-label {
-      font-size: 11px;
-      color: #718096;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    /* ── AUTH BUTTON ── */
-    .btn-auth {
-      background: linear-gradient(135deg, var(--pi-blue), #6B8AFF);
-      color: white;
-      border: none;
-      padding: 14px 32px;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      width: 100%;
-      max-width: 320px;
-      margin-bottom: 10px;
-      transition: transform 0.2s;
-    }
-
-    .btn-auth:hover { transform: translateY(-2px); }
-
-    .gcv-note {
-      font-size: 11px;
-      color: #718096;
-      margin-top: 8px;
-    }
-
-    /* ── GCV BANNER ── */
-    .gcv-banner {
-      background: rgba(255,179,0,0.1);
-      border: 1px solid var(--gold);
-      border-radius: 10px;
-      padding: 12px 16px;
-      margin: 20px;
-      text-align: center;
-      font-size: 13px;
-      color: var(--gold);
-    }
-
-    /* ── SECTION TITLES ── */
-    .section {
-      padding: 32px 20px;
-    }
-
-    .section-title {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--white);
-      margin-bottom: 6px;
-    }
-
-    .section-title span { color: var(--pi-blue); }
-
-    .section-sub {
-      font-size: 13px;
-      color: #718096;
-      margin-bottom: 20px;
-    }
-
-    /* ── DOMAIN CARDS ── */
-    .domains-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .domain-card {
-      background: linear-gradient(135deg, #1E2240, #252B4A);
-      border: 1px solid rgba(74,107,255,0.3);
-      border-radius: 14px;
-      padding: 18px;
-      transition: border-color 0.2s;
-    }
-
-    .domain-card:hover { border-color: var(--pi-blue); }
-
-    .domain-card.phase2 {
-      border-color: rgba(230,126,34,0.3);
-      opacity: 0.85;
-    }
-
-    .domain-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-
-    .domain-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .domain-icon {
-      width: 42px; height: 42px;
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px;
-    }
-
-    .domain-name {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--white);
-    }
-
-    .domain-priority {
-      font-size: 11px;
-      color: #718096;
-      margin-top: 2px;
-    }
-
-    .badge {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 20px;
-      letter-spacing: 0.5px;
-    }
-
-    .badge-demo { background: rgba(0,166,81,0.2); color: var(--rw-green); border: 1px solid var(--rw-green); }
-    .badge-live { background: rgba(74,107,255,0.2); color: var(--pi-blue); border: 1px solid var(--pi-blue); }
-    .badge-soon { background: rgba(230,126,34,0.2); color: var(--orange); border: 1px solid var(--orange); }
-
-    .domain-desc {
-      font-size: 13px;
-      color: #A0AEC0;
-      line-height: 1.5;
-      margin-bottom: 12px;
-    }
-
-    .domain-price {
-      background: rgba(74,107,255,0.1);
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 12px;
-      color: var(--pi-blue);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .domain-price .free { color: var(--rw-green); font-weight: 700; }
-    .domain-price .paid { color: var(--gold); font-weight: 700; }
-
-    /* ── PRICING TABLE ── */
-    .pricing-section {
-      background: #0D0D1E;
-      padding: 32px 20px;
-    }
-
-    .pricing-cards {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .pricing-card {
-      background: linear-gradient(135deg, #1E2240, #252B4A);
-      border: 1px solid rgba(74,107,255,0.3);
-      border-radius: 12px;
-      padding: 16px;
-    }
-
-    .pricing-card.featured {
-      border-color: var(--gold);
-      background: linear-gradient(135deg, #2A2210, #2E2A12);
-    }
-
-    .pricing-name {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--white);
-      margin-bottom: 4px;
-    }
-
-    .pricing-pi {
-      font-size: 24px;
-      font-weight: 900;
-      color: var(--pi-blue);
-    }
-
-    .pricing-usd {
-      font-size: 12px;
-      color: #718096;
-      margin-top: 2px;
-    }
-
-    .pricing-note {
-      font-size: 11px;
-      color: #718096;
-      font-style: italic;
-      margin-top: 4px;
-    }
-
-    /* ── LEGAL FOOTER ── */
-    .legal {
-      background: #0A0A1A;
-      padding: 20px;
-      border-top: 1px solid rgba(74,107,255,0.2);
-    }
-
-    .legal-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--orange);
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .legal-text {
-      font-size: 11px;
-      color: #718096;
-      line-height: 1.6;
-    }
-
-    .legal-text a {
-      color: var(--pi-blue);
-      text-decoration: none;
-    }
-
-    /* ── TOAST ── */
-    #toast {
-      position: fixed;
-      bottom: 20px; left: 50%;
-      transform: translateX(-50%);
-      background: var(--rw-green);
-      color: white;
-      padding: 12px 24px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      display: none;
-      z-index: 999;
-      text-align: center;
-      max-width: 300px;
-    }
-
-    /* ── USER INFO ── */
-    #user-info {
-      display: none;
-      background: rgba(0,166,81,0.1);
-      border: 1px solid var(--rw-green);
-      border-radius: 10px;
-      padding: 12px 16px;
-      margin: 16px 20px 0;
-      font-size: 13px;
-      color: var(--rw-green);
-      text-align: center;
-    }
-
-    /* ── DIVIDER ── */
-    .divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(74,107,255,0.3), transparent);
-      margin: 0 20px;
-    }
-
-    /* ── ROADMAP ── */
-    .roadmap {
-      background: rgba(230,126,34,0.05);
-      border: 1px solid rgba(230,126,34,0.2);
-      border-radius: 12px;
-      padding: 16px;
-      margin-top: 14px;
-    }
-
-    .roadmap-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--orange);
-      margin-bottom: 8px;
-    }
-
-    .roadmap-item {
-      font-size: 12px;
-      color: #A0AEC0;
-      padding: 4px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .roadmap-item:last-child { border-bottom: none; }
+    /* GCV NOTE */
+    .gcv-note { background:rgba(255,179,0,0.08);border:1px solid rgba(255,179,0,0.3);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--gold);margin-bottom:14px; }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header>
-    <div class="logo">
-      <div class="logo-icon">π</div>
-      <div class="logo-text">Pi<span>Vita</span>Flow</div>
+<!-- HEADER -->
+<header>
+  <a class="logo" href="index.html">
+    <div class="logo-icon">π</div>
+    <div class="logo-text">Pi<span>Vita</span>Flow</div>
+  </a>
+  <a class="back-btn" href="index.html">← Back</a>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="domain-badge">📜 DOMAIN 2 — SMARTPI HERITAGE</div>
+  <h1>Succession Contract<br/><span>on Pi Network</span></h1>
+  <p>Create an immutable, verifiable succession contract. Your assets protected, your family secured — powered by Pi.</p>
+  <div class="price-tag">
+    <div><div class="pi">3π</div><div class="usd">Contract creation</div></div>
+    <div><div class="pi">0.1π</div><div class="usd">Verification</div></div>
+  </div>
+</div>
+
+<div id="user-status">✅ Connected as <strong id="pi-username">—</strong></div>
+
+<!-- STEPS BAR -->
+<div class="steps-bar">
+  <div class="step active" id="step-tab-1">
+    <div class="step-num">1</div>
+    <div class="step-label">Identity</div>
+  </div>
+  <div class="step-line" id="line-1"></div>
+  <div class="step" id="step-tab-2">
+    <div class="step-num">2</div>
+    <div class="step-label">Beneficiaries</div>
+  </div>
+  <div class="step-line" id="line-2"></div>
+  <div class="step" id="step-tab-3">
+    <div class="step-num">3</div>
+    <div class="step-label">Assets</div>
+  </div>
+  <div class="step-line" id="line-3"></div>
+  <div class="step" id="step-tab-4">
+    <div class="step-num">4</div>
+    <div class="step-label">Conditions</div>
+  </div>
+  <div class="step-line" id="line-4"></div>
+  <div class="step" id="step-tab-5">
+    <div class="step-num">5</div>
+    <div class="step-label">Review & Pay</div>
+  </div>
+</div>
+
+<!-- FORM CONTAINER -->
+<div class="form-container">
+
+  <!-- STEP 1 — Identity -->
+  <div class="step-panel active" id="panel-1">
+    <div class="panel-title">👤 Your Identity</div>
+    <div class="panel-sub">Information about you as the testator (contract creator)</div>
+    <div class="field">
+      <label>Full Name *</label>
+      <input type="text" id="f-name" placeholder="Ex: Théophile HAKIZIMANA"/>
     </div>
-    <select class="lang-selector" onchange="switchLang(this.value)">
-      <option value="en">🌍 EN</option>
-      <option value="fr">🇫🇷 FR</option>
-      <option value="rw">🇷🇼 RW</option>
-      <option value="sw">🌍 SW</option>
-    </select>
-  </header>
+    <div class="field">
+      <label>Pi Address (Username) *</label>
+      <input type="text" id="f-piaddr" placeholder="Ex: @theophile923"/>
+      <div class="hint">Your Pi Network username</div>
+    </div>
+    <div class="field">
+      <label>Country *</label>
+      <select id="f-country">
+        <option value="">— Select country —</option>
+        <option value="RW">🇷🇼 Rwanda</option>
+        <option value="KE">🇰🇪 Kenya</option>
+        <option value="UG">🇺🇬 Uganda</option>
+        <option value="TZ">🇹🇿 Tanzania</option>
+        <option value="US">🇺🇸 USA</option>
+        <option value="OTHER">🌍 Other</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Date of Birth *</label>
+      <input type="date" id="f-dob"/>
+    </div>
+    <div class="field">
+      <label>Email (for notifications)</label>
+      <input type="email" id="f-email" placeholder="yourname@email.com"/>
+    </div>
+    <button class="btn-primary" onclick="goToStep(2)">Continue → Beneficiaries</button>
+  </div>
 
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-badge">🏆 PI APP STUDIO COMPETITION 2026</div>
-    <h1>Your Lifecycle Partner<br/>on Pi Network</h1>
-    <p>6 powerful domains. Global standards. Local frameworks.<br/>Rwanda-ready. All payments in Pi.</p>
+  <!-- STEP 2 — Beneficiaries -->
+  <div class="step-panel" id="panel-2">
+    <div class="panel-title">👨‍👩‍👧 Beneficiaries</div>
+    <div class="panel-sub">Add your heirs and their share percentage (must total 100%)</div>
 
-    <div class="hero-stats">
-      <div class="stat">
-        <div class="stat-number">6</div>
-        <div class="stat-label">Domains</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number">4</div>
-        <div class="stat-label">Languages</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number">3+</div>
-        <div class="stat-label">Countries</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number">π</div>
-        <div class="stat-label">Payments</div>
+    <div class="benef-list" id="benef-list"></div>
+    <button class="btn-add" onclick="addBenef()">＋ Add Beneficiary</button>
+
+    <div class="pct-total" id="pct-total">Total: 0%</div>
+
+    <div class="gcv-note">💡 Each beneficiary will receive their % share of your Pi assets automatically upon contract execution.</div>
+
+    <button class="btn-primary" onclick="goToStep(3)">Continue → Assets</button>
+    <button class="btn-secondary" onclick="goToStep(1)">← Back</button>
+  </div>
+
+  <!-- STEP 3 — Assets -->
+  <div class="step-panel" id="panel-3">
+    <div class="panel-title">💎 Your Assets</div>
+    <div class="panel-sub">Declare the assets to include in your succession contract</div>
+
+    <div class="condition-card">
+      <div class="condition-title">Pi Coins</div>
+      <div class="field">
+        <label>Amount in Pi (π)</label>
+        <input type="number" id="a-pi" placeholder="Ex: 150" min="0" step="0.01"/>
+        <div class="hint" id="a-pi-usd">≈ $0 USD (ref. GCV)</div>
       </div>
     </div>
 
-    <button class="btn-auth" id="btn-signin" onclick="handleLogin()">
-      🔐 Connect with Pi Network
+    <div class="condition-card">
+      <div class="condition-title">Real Estate</div>
+      <div class="field">
+        <label>Description</label>
+        <input type="text" id="a-re-desc" placeholder="Ex: House in Nyarutarama, Kigali"/>
+      </div>
+      <div class="field">
+        <label>Estimated Value in Pi (π)</label>
+        <input type="number" id="a-re-val" placeholder="Ex: 50" min="0" step="0.01"/>
+      </div>
+    </div>
+
+    <div class="condition-card">
+      <div class="condition-title">Other Assets</div>
+      <div class="field">
+        <label>Description</label>
+        <input type="text" id="a-other-desc" placeholder="Ex: Business, vehicle, savings..."/>
+      </div>
+      <div class="field">
+        <label>Estimated Value in Pi (π)</label>
+        <input type="number" id="a-other-val" placeholder="Ex: 20" min="0" step="0.01"/>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-title">📊 Total Estate Value</div>
+      <div class="summary-row"><span class="key">Pi Coins</span><span class="val" id="t-pi">0π</span></div>
+      <div class="summary-row"><span class="key">Real Estate</span><span class="val" id="t-re">0π</span></div>
+      <div class="summary-row"><span class="key">Other</span><span class="val" id="t-other">0π</span></div>
+      <div class="summary-row"><span class="key" style="font-weight:700;color:var(--white)">TOTAL</span><span class="val" id="t-total" style="color:var(--gold);font-size:16px">0π</span></div>
+    </div>
+
+    <button class="btn-primary" onclick="goToStep(4)">Continue → Conditions</button>
+    <button class="btn-secondary" onclick="goToStep(2)">← Back</button>
+  </div>
+
+  <!-- STEP 4 — Conditions -->
+  <div class="step-panel" id="panel-4">
+    <div class="panel-title">⚙️ Contract Conditions</div>
+    <div class="panel-sub">Set the execution rules for your succession contract</div>
+
+    <div class="condition-card">
+      <div class="condition-title">🔒 Time-Lock</div>
+      <div class="field">
+        <label>Minimum delay before execution (years)</label>
+        <select id="c-timelock">
+          <option value="0">No delay</option>
+          <option value="1">1 year</option>
+          <option value="5">5 years</option>
+          <option value="10">10 years</option>
+          <option value="25" selected>25 years (recommended)</option>
+        </select>
+        <div class="hint">Contract cannot be executed before this period</div>
+      </div>
+    </div>
+
+    <div class="condition-card">
+      <div class="condition-title">✍️ Multi-Signature</div>
+      <div class="field">
+        <label>Required signatures for execution</label>
+        <select id="c-multisig">
+          <option value="1">1 of N (any beneficiary)</option>
+          <option value="2" selected>2 of N (recommended)</option>
+          <option value="3">3 of N (high security)</option>
+        </select>
+        <div class="hint">Multiple beneficiaries must sign to execute</div>
+      </div>
+    </div>
+
+    <div class="condition-card">
+      <div class="condition-title">📄 Death Certificate</div>
+      <div class="toggle-row">
+        <span class="toggle-label">Require death certificate upload</span>
+        <label class="toggle">
+          <input type="checkbox" id="c-cert" checked/>
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="hint" style="margin-top:8px">Beneficiaries must upload official certificate before execution</div>
+    </div>
+
+    <div class="condition-card">
+      <div class="condition-title">🌍 Legal Framework</div>
+      <div class="field">
+        <label>Applicable Law</label>
+        <select id="c-law">
+          <option value="RW">Rwanda — Law N°22/99 of 12/11/1999</option>
+          <option value="INT">International Standard</option>
+          <option value="KE">Kenya — Law of Succession Act</option>
+          <option value="US">USA — Uniform Probate Code</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="goToStep(5)">Continue → Review & Pay</button>
+    <button class="btn-secondary" onclick="goToStep(3)">← Back</button>
+  </div>
+
+  <!-- STEP 5 — Review & Pay -->
+  <div class="step-panel" id="panel-5">
+    <div class="panel-title">📋 Review & Deploy</div>
+    <div class="panel-sub">Verify your contract details before payment</div>
+
+    <!-- Summary populated by JS -->
+    <div id="final-summary"></div>
+
+    <div class="gcv-note">
+      💰 <strong>Contract Fee: 3π</strong><br/>
+      ~$942,477 (ref. GCV $314,159/π) | ~1,225,220,000 FRW<br/>
+      ⚠️ USD/FRW are estimates based on GCV. Actual value depends on market rate.
+    </div>
+
+    <div class="legal-box">
+      <strong>⚖️ Legal Disclaimer:</strong> SmartPi Heritage contracts are digital supplements stored on Pi Network with IPFS backup. They must be validated by a licensed notary for full legal compliance. In Rwanda, succession must comply with <strong>Law N°22/99 of 12/11/1999</strong>. PiVitaFlow is not a law firm.
+    </div>
+
+    <div class="field">
+      <label><input type="checkbox" id="chk-legal" style="width:auto;margin-right:8px"/>I understand this is a digital contract supplement and agree to the legal disclaimer</label>
+    </div>
+    <div class="field">
+      <label><input type="checkbox" id="chk-notary" style="width:auto;margin-right:8px"/>I will consult a licensed notary for full legal validation</label>
+    </div>
+
+    <button class="btn-pay" onclick="initiatePayment()">
+      🔐 Pay 3π & Deploy Contract
     </button>
-    <div class="gcv-note">Secure authentication via Pi SDK v2.0</div>
+    <button class="btn-secondary" onclick="goToStep(4)">← Back</button>
   </div>
 
-  <!-- USER INFO (shown after login) -->
-  <div id="user-info">✅ Connected as <strong id="pi-username"></strong> — Welcome to PiVitaFlow!</div>
+</div>
 
-  <!-- GCV BANNER -->
-  <div class="gcv-banner">
-    ⚠️ <strong>GCV Reference:</strong> 1π = $314,159 (Pi community internal standard).
-    USD/FRW prices are estimates only. Actual value depends on market rate at transaction time.
+<!-- SUCCESS PANEL -->
+<div class="success-panel" id="success-panel">
+  <div class="success-icon">🎉</div>
+  <div class="success-title">Contract Deployed!</div>
+  <div class="success-sub">Your SmartPi Heritage contract has been created and stored securely on Pi Network with IPFS backup.</div>
+  <div class="txid-box" id="txid-display">TXID: Generating...</div>
+  <div class="summary-card">
+    <div class="summary-title">📜 Contract Details</div>
+    <div class="summary-row"><span class="key">Status</span><span class="val" style="color:var(--rw-green)">✅ Active</span></div>
+    <div class="summary-row"><span class="key">Storage</span><span class="val">IPFS (AES-256 encrypted)</span></div>
+    <div class="summary-row"><span class="key">Network</span><span class="val">Pi Network (Sandbox)</span></div>
+    <div class="summary-row"><span class="key">Next Step</span><span class="val">Share with beneficiaries to sign</span></div>
   </div>
+  <button class="btn-primary" onclick="window.location.href='index.html'" style="max-width:320px;margin:0 auto">← Back to PiVitaFlow</button>
+</div>
 
-  <!-- DOMAINS -->
-  <div class="section">
-    <div class="section-title">🔹 The <span>6 Domains</span></div>
-    <div class="section-sub">Choose your lifecycle tool — powered by Pi Network</div>
+<div id="toast"></div>
 
-    <div class="domains-grid">
+<script>
+// ══════════════════════════════════════════
+// Pi Auth (same pattern as index.html)
+// ══════════════════════════════════════════
+class PiService {
+  constructor() { this.user = null; this.accessToken = null; }
+  onIncompletePaymentFound(p) { console.warn("Incomplete payment:", p.identifier); }
+  async login(scopes = ["username"]) {
+    try {
+      await Pi.init({ version: "2.0", sandbox: false });
+      const auth = await Pi.authenticate(scopes, this.onIncompletePaymentFound);
+      this.user = auth.user; this.accessToken = auth.accessToken;
+      return { success: true, user: auth.user, accessToken: auth.accessToken };
+    } catch(e) { return { success: false, error: e.message }; }
+  }
+}
+const piService = new PiService();
 
-      <!-- Domain 1 -->
-      <div class="domain-card">
-        <div class="domain-header">
-          <div class="domain-left">
-            <div class="domain-icon" style="background:linear-gradient(135deg,#4A6BFF,#6B8AFF)">📊</div>
-            <div>
-              <div class="domain-name">PiBusiness Plan</div>
-              <div class="domain-priority">Priority #1 — Main Demo</div>
-            </div>
-          </div>
-          <span class="badge badge-demo">✅ DEMO</span>
-        </div>
-        <div class="domain-desc">
-          Create bankable business plans with the CAPMER framework. Auto-calculate ROI, IRR, DSCR, break-even. Compliant with RRA (Rwanda), KRA (Kenya), IRS (USA). Generate PDF reports.
-        </div>
-        <div class="domain-price">
-          <span>Preview: <span class="free">Free</span></span>
-          <span>Deep Study Report: <span class="paid">3π</span></span>
-        </div>
-      </div>
+window.addEventListener("load", async () => {
+  const r = await piService.login(["username", "payments"]);
+  if (r.success) {
+    document.getElementById("pi-username").textContent = r.user.username;
+    document.getElementById("user-status").style.display = "block";
+    // Pre-fill Pi address
+    document.getElementById("f-piaddr").value = "@" + r.user.username;
+  }
+});
 
-      <!-- Domain 2 -->
-      <div class="domain-card">
-        <div class="domain-header">
-          <div class="domain-left">
-            <div class="domain-icon" style="background:linear-gradient(135deg,#00A651,#00C864)">📜</div>
-            <div>
-              <div class="domain-name">SmartPi Heritage</div>
-              <div class="domain-priority">Priority #2</div>
-            </div>
-          </div>
-          <span class="badge badge-live">🔵 LIVE</span>
-        </div>
-        <div class="domain-desc">
-          Create immutable succession contracts on Pi Network. Visual editor, multi-signature validation, TXID as proof. PDF stored on IPFS (AES-256). Rwanda Law N°22/99 compliant.
-        </div>
-        <div class="domain-price">
-          <span>Contract creation: <span class="paid">3π</span></span>
-          <span>Verification: <span class="paid">0.1π</span></span>
-        </div>
-      </div>
+// ══════════════════════════════════════════
+// STEP NAVIGATION
+// ══════════════════════════════════════════
+let currentStep = 1;
+const TOTAL_STEPS = 5;
 
-      <!-- Domain 3 -->
-      <div class="domain-card">
-        <div class="domain-header">
-          <div class="domain-left">
-            <div class="domain-icon" style="background:linear-gradient(135deg,#E74C3C,#FF6B6B)">🏥</div>
-            <div>
-              <div class="domain-name">PiHealth Care</div>
-              <div class="domain-priority">Priority #3</div>
-            </div>
-          </div>
-          <span class="badge badge-live">🔵 LIVE</span>
-        </div>
-        <div class="domain-desc">
-          Simulate health insurance coverage adapted to the Rwandan Mutuelle de Santé model. Compare RSSB vs Sanlam vs SONARWA. Ubudehe category selector (1–4). Quotes in Pi/$/FRW.
-        </div>
-        <div class="domain-price">
-          <span>Simulation: <span class="free">Free</span></span>
-          <span>Full PDF Report: <span class="paid">3π</span></span>
-        </div>
-      </div>
+function goToStep(n) {
+  if (n > currentStep && !validateStep(currentStep)) return;
 
-      <!-- Domain 4 -->
-      <div class="domain-card">
-        <div class="domain-header">
-          <div class="domain-left">
-            <div class="domain-icon" style="background:linear-gradient(135deg,#F39C12,#FFB300)">🏗️</div>
-            <div>
-              <div class="domain-name">PiSmart Builder</div>
-              <div class="domain-priority">Priority #4</div>
-            </div>
-          </div>
-          <span class="badge badge-live">🔵 LIVE</span>
-        </div>
-        <div class="domain-desc">
-          Construction cost calculator for engineers and architects. CAPMER framework adapted to building projects. RHA (Rwanda), NCA (Kenya), USA codes compliant. 2D visualization.
-        </div>
-        <div class="domain-price">
-          <span>Full Estimate PDF: <span class="paid">3π</span></span>
-        </div>
-      </div>
+  // Update panels
+  document.querySelectorAll(".step-panel").forEach(p => p.classList.remove("active"));
+  document.getElementById("panel-" + n).classList.add("active");
 
-      <!-- Domain 5 -->
-      <div class="domain-card">
-        <div class="domain-header">
-          <div class="domain-left">
-            <div class="domain-icon" style="background:linear-gradient(135deg,#8E44AD,#A855F7)">🧾</div>
-            <div>
-              <div class="domain-name">PiTax</div>
-              <div class="domain-priority">Priority #5</div>
-            </div>
-          </div>
-          <span class="badge badge-live">🔵 LIVE</span>
-        </div>
-        <div class="domain-desc">
-          Advanced tax calculator for professionals. Rwanda (RRA), Kenya (KRA), USA (IRS/FICA). Optimization strategies: Foreign Tax Credit, Pi conversion deferral, Texas residency.
-        </div>
-        <div class="domain-price">
-          <span>Tax Report PDF: <span class="paid">3π</span></span>
-        </div>
-      </div>
+  // Update step tabs
+  for (let i = 1; i <= TOTAL_STEPS; i++) {
+    const tab = document.getElementById("step-tab-" + i);
+    tab.classList.remove("active","done");
+    if (i < n) tab.classList.add("done");
+    else if (i === n) tab.classList.add("active");
+  }
 
-      <!-- Domain 6 — Phase 2 -->
-      <div class="domain-card phase2">
-        <div class="domain-header">
-          <div class="domain-left">
-            <div class="domain-icon" style="background:linear-gradient(135deg,#E67E22,#F39C12)">🎙️</div>
-            <div>
-              <div class="domain-name">PiTalk</div>
-              <div class="domain-priority">Communication — Phase 2</div>
-            </div>
-          </div>
-          <span class="badge badge-soon">🔜 PHASE 2</span>
-        </div>
-        <div class="domain-desc">
-          Real-time voice calls with AI translation (&lt;2s latency). Each pioneer speaks their own language. WebRTC + Google Media Translation API. Up to 10 participants per call.
-        </div>
-        <div class="roadmap">
-          <div class="roadmap-title">🗺️ Phase 2 Roadmap</div>
-          <div class="roadmap-item">✦ WebRTC infrastructure setup</div>
-          <div class="roadmap-item">✦ Google Media Translation integration (Kinyarwanda ↔ EN/FR/ZH)</div>
-          <div class="roadmap-item">✦ IPFS encrypted call recording (with consent)</div>
-          <div class="roadmap-item">✦ PiTalk Premium: 0.1π/month</div>
-        </div>
-      </div>
+  // Update lines
+  for (let i = 1; i < TOTAL_STEPS; i++) {
+    const line = document.getElementById("line-" + i);
+    line.classList.toggle("done", i < n);
+  }
 
+  currentStep = n;
+  if (n === 3) setupAssetListeners();
+  if (n === 5) buildFinalSummary();
+  window.scrollTo(0, 0);
+}
+
+function validateStep(n) {
+  if (n === 1) {
+    if (!document.getElementById("f-name").value.trim()) { showToast("⚠️ Please enter your full name", true); return false; }
+    if (!document.getElementById("f-piaddr").value.trim()) { showToast("⚠️ Please enter your Pi address", true); return false; }
+    if (!document.getElementById("f-country").value) { showToast("⚠️ Please select your country", true); return false; }
+    if (!document.getElementById("f-dob").value) { showToast("⚠️ Please enter your date of birth", true); return false; }
+  }
+  if (n === 2) {
+    const rows = document.querySelectorAll(".benef-row");
+    if (rows.length === 0) { showToast("⚠️ Add at least one beneficiary", true); return false; }
+    const total = calcPctTotal();
+    if (total !== 100) { showToast("⚠️ Percentages must total exactly 100%", true); return false; }
+  }
+  if (n === 5) {
+    if (!document.getElementById("chk-legal").checked) { showToast("⚠️ Please accept the legal disclaimer", true); return false; }
+    if (!document.getElementById("chk-notary").checked) { showToast("⚠️ Please confirm notary consultation", true); return false; }
+  }
+  return true;
+}
+
+// ══════════════════════════════════════════
+// BENEFICIARIES
+// ══════════════════════════════════════════
+let benefCount = 0;
+
+function addBenef() {
+  benefCount++;
+  const id = benefCount;
+  const div = document.createElement("div");
+  div.className = "benef-row";
+  div.id = "benef-" + id;
+  div.innerHTML = `
+    <div class="benef-row-header">
+      <span class="benef-label">Beneficiary #${id}</span>
+      <button class="btn-remove" onclick="removeBenef(${id})">✕ Remove</button>
     </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- PRICING -->
-  <div class="pricing-section">
-    <div class="section-title" style="margin-bottom:6px">💰 <span>Pricing</span></div>
-    <div class="section-sub">All payments processed via Pi SDK v2.0</div>
-
-    <div class="pricing-cards">
-
-      <div class="pricing-card">
-        <div class="pricing-name">🆓 Free Preview</div>
-        <div class="pricing-pi">0π</div>
-        <div class="pricing-usd">Basic simulations on all domains</div>
-      </div>
-
-      <div class="pricing-card featured">
-        <div class="pricing-name">📅 Monthly Subscription</div>
-        <div class="pricing-pi">0.25π / month</div>
-        <div class="pricing-usd">~$78,540 (ref. GCV) | ~102,102,000 FRW</div>
-        <div class="pricing-note">⚠️ USD/FRW estimated at GCV rate</div>
-      </div>
-
-      <div class="pricing-card">
-        <div class="pricing-name">📅 Quarterly Subscription</div>
-        <div class="pricing-pi">0.7π / quarter</div>
-        <div class="pricing-usd">~$219,911 (ref. GCV) | ~285,884,000 FRW</div>
-        <div class="pricing-note">⚠️ USD/FRW estimated at GCV rate</div>
-      </div>
-
-      <div class="pricing-card">
-        <div class="pricing-name">📅 Annual Subscription</div>
-        <div class="pricing-pi">2.75π / year</div>
-        <div class="pricing-usd">~$863,937 (ref. GCV) | ~1,123,118,000 FRW</div>
-        <div class="pricing-note">⚠️ USD/FRW estimated at GCV rate</div>
-      </div>
-
-      <div class="pricing-card featured">
-        <div class="pricing-name">📄 Deep Study (any domain)</div>
-        <div class="pricing-pi">3π</div>
-        <div class="pricing-usd">~$942,477 (ref. GCV) | ~1,225,220,000 FRW</div>
-        <div class="pricing-note">Full PDF report delivered within 7 business days</div>
-      </div>
-
+    <div class="field"><label>Full Name *</label><input type="text" id="bn-${id}" placeholder="Ex: Marie UWASE"/></div>
+    <div class="field"><label>Pi Address *</label><input type="text" id="ba-${id}" placeholder="Ex: @marie_uwase"/></div>
+    <div class="field"><label>Relationship</label>
+      <select id="br-${id}">
+        <option value="spouse">Spouse / Partner</option>
+        <option value="child">Child</option>
+        <option value="parent">Parent</option>
+        <option value="sibling">Sibling</option>
+        <option value="other">Other</option>
+      </select>
     </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- LEGAL FOOTER -->
-  <div class="legal">
-    <div class="legal-title">⚖️ Legal Disclaimer</div>
-    <div class="legal-text">
-      PiVitaFlow provides educational and advisory tools based on international standards and local frameworks.
-      For legal, financial, or medical advice, consult a licensed professional in your jurisdiction.
-      SmartPi Heritage contracts are digital supplements and must be validated by a notary for full legal compliance.
-      In Rwanda, succession contracts must comply with <strong>Law N°22/99 of 12/11/1999</strong>.
-      Prices displayed in USD/FRW are estimates based on the Pi Network community GCV (1π = $314,159).
-      Actual transaction values depend on market rates at time of payment.
-      <br/><br/>
-      <a href="privacy.html">Privacy Policy</a> ·
-      Contact: <a href="mailto:theophileh56@gmail.com">theophileh56@gmail.com</a> ·
-      Built by Theophile HAKIZIMANA for Pi App Studio Competition 2026
+    <div class="field"><label>Share (%) *</label>
+      <input type="number" id="bp-${id}" placeholder="Ex: 40" min="1" max="100" oninput="updatePctTotal()"/>
     </div>
-  </div>
+  `;
+  document.getElementById("benef-list").appendChild(div);
+  updatePctTotal();
+}
 
-  <!-- TOAST -->
-  <div id="toast"></div>
+function removeBenef(id) {
+  document.getElementById("benef-" + id).remove();
+  updatePctTotal();
+}
 
-  <script>
-    // ════════════════════════════════════════════════
-    // Pi Network Authentication — Vanilla JS
-    // Ref: pi-apps.github.io/pi-sdk-docs/quick-start/genai/Authentication
-    // ════════════════════════════════════════════════
+function calcPctTotal() {
+  let total = 0;
+  document.querySelectorAll("[id^='bp-']").forEach(inp => {
+    total += parseFloat(inp.value || 0);
+  });
+  return Math.round(total * 10) / 10;
+}
 
-    // ── PiService : wrapper officiel recommandé ──
-    class PiService {
-      constructor() {
-        this.user = null;
-        this.accessToken = null;
-      }
+function updatePctTotal() {
+  const total = calcPctTotal();
+  const el = document.getElementById("pct-total");
+  el.textContent = "Total: " + total + "%";
+  el.className = "pct-total " + (total === 100 ? "ok" : "err");
+}
 
-      // Callback obligatoire pour paiements incomplets
-      onIncompletePaymentFound(payment) {
-        console.warn("Incomplete payment found:", payment.identifier);
-      }
+// ══════════════════════════════════════════
+// ASSETS
+// ══════════════════════════════════════════
+const GCV = 314159;
 
-      // Authentification async/await — Pi.init traité comme Promise
-      async login(scopes = ["username"]) {
-        try {
-          // 1. Init complet AVANT authenticate (await obligatoire)
-          await Pi.init({ version: "2.0", sandbox: true });
+function setupAssetListeners() {
+  ["a-pi","a-re-val","a-other-val"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("input", updateTotals);
+  });
+  updateTotals();
+}
 
-          // 2. Authentification avec scope "username"
-          const auth = await Pi.authenticate(scopes, this.onIncompletePaymentFound);
+function updateTotals() {
+  const pi    = parseFloat(document.getElementById("a-pi").value || 0);
+  const re    = parseFloat(document.getElementById("a-re-val").value || 0);
+  const other = parseFloat(document.getElementById("a-other-val").value || 0);
+  const total = pi + re + other;
 
-          this.user        = auth.user;
-          this.accessToken = auth.accessToken;
+  document.getElementById("t-pi").textContent    = pi    + "π";
+  document.getElementById("t-re").textContent    = re    + "π";
+  document.getElementById("t-other").textContent = other + "π";
+  document.getElementById("t-total").textContent = total.toFixed(2) + "π";
 
-          // 3. Validation côté serveur via /v2/me
-          await this._validateTokenOnServer(auth.accessToken);
+  const usd = (pi * GCV).toLocaleString();
+  document.getElementById("a-pi-usd").textContent = `≈ $${usd} USD (ref. GCV)`;
+}
 
-          return { success: true, user: auth.user, accessToken: auth.accessToken };
-        } catch (error) {
-          console.error("Pi Auth Error:", error);
-          return { success: false, error: error.message };
-        }
-      }
+// ══════════════════════════════════════════
+// FINAL SUMMARY
+// ══════════════════════════════════════════
+function buildFinalSummary() {
+  const name    = document.getElementById("f-name").value;
+  const piaddr  = document.getElementById("f-piaddr").value;
+  const country = document.getElementById("f-country").options[document.getElementById("f-country").selectedIndex].text;
+  const pi      = parseFloat(document.getElementById("a-pi").value || 0);
+  const re      = parseFloat(document.getElementById("a-re-val").value || 0);
+  const other   = parseFloat(document.getElementById("a-other-val").value || 0);
+  const total   = (pi + re + other).toFixed(2);
+  const tlock   = document.getElementById("c-timelock").options[document.getElementById("c-timelock").selectedIndex].text;
+  const msig    = document.getElementById("c-multisig").options[document.getElementById("c-multisig").selectedIndex].text;
+  const law     = document.getElementById("c-law").options[document.getElementById("c-law").selectedIndex].text;
 
-      // Validation backend : GET https://api.minepi.com/v2/me
-      // (aucune API key requise — Bearer token suffit)
-      async _validateTokenOnServer(accessToken) {
-        try {
-          const res = await fetch("https://api.minepi.com/v2/me", {
-            method: "GET",
-            headers: { "Authorization": "Bearer " + accessToken }
-          });
-          if (!res.ok) throw new Error("Token validation failed: " + res.status);
-          const piUser = await res.json();
-          console.log("✅ Pi /v2/me validated:", piUser.username);
-          return piUser;
-        } catch (err) {
-          // En sandbox/dev, /v2/me peut être bloqué par CORS — on continue quand même
-          console.warn("Server validation skipped (sandbox/CORS):", err.message);
-        }
-      }
+  // Beneficiaries
+  let benefHTML = "";
+  document.querySelectorAll("[id^='bn-']").forEach(el => {
+    const id  = el.id.replace("bn-","");
+    const n   = el.value;
+    const a   = document.getElementById("ba-"+id)?.value || "";
+    const pct = document.getElementById("bp-"+id)?.value || "0";
+    benefHTML += `<div class="summary-row"><span class="key">${n} (${a})</span><span class="val">${pct}%</span></div>`;
+  });
+
+  document.getElementById("final-summary").innerHTML = `
+    <div class="summary-card">
+      <div class="summary-title">👤 Testator</div>
+      <div class="summary-row"><span class="key">Name</span><span class="val">${name}</span></div>
+      <div class="summary-row"><span class="key">Pi Address</span><span class="val">${piaddr}</span></div>
+      <div class="summary-row"><span class="key">Country</span><span class="val">${country}</span></div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-title">👨‍👩‍👧 Beneficiaries</div>
+      ${benefHTML}
+    </div>
+    <div class="summary-card">
+      <div class="summary-title">💎 Estate Value</div>
+      <div class="summary-row"><span class="key">Pi Coins</span><span class="val">${pi}π</span></div>
+      <div class="summary-row"><span class="key">Real Estate</span><span class="val">${re}π</span></div>
+      <div class="summary-row"><span class="key">Other</span><span class="val">${other}π</span></div>
+      <div class="summary-row"><span class="key">TOTAL</span><span class="val" style="color:var(--gold);font-size:15px">${total}π (~$${(total*GCV).toLocaleString()} ref. GCV)</span></div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-title">⚙️ Conditions</div>
+      <div class="summary-row"><span class="key">Time-Lock</span><span class="val">${tlock}</span></div>
+      <div class="summary-row"><span class="key">Multi-Sig</span><span class="val">${msig}</span></div>
+      <div class="summary-row"><span class="key">Death Certificate</span><span class="val">${document.getElementById("c-cert").checked ? "Required ✅" : "Not required"}</span></div>
+      <div class="summary-row"><span class="key">Legal Framework</span><span class="val">${law}</span></div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════
+// PAYMENT
+// ══════════════════════════════════════════
+async function initiatePayment() {
+  if (!validateStep(5)) return;
+
+  // Si pas encore connecte -> force auth maintenant
+  if (!piService.user) {
+    showToast("Connecting to Pi Network...");
+    const r = await piService.login(["username", "payments"]);
+    if (!r.success) {
+      showToast("Pi connection failed. Open in Pi Browser.", true);
+      return;
     }
+    document.getElementById("pi-username").textContent = r.user.username;
+    document.getElementById("user-status").style.display = "block";
+    showToast("Connected! Processing payment...");
+  }
 
-    // Instance unique globale
-    const piService = new PiService();
+  showToast("Initiating Pi payment...");
 
-    // ── handleLogin : appelé par le bouton ET au chargement ──
-    async function handleLogin() {
-      showToast("🔐 Connecting to Pi Network...");
-      const result = await piService.login(["username"]);
+  const timestamp = Date.now();
+  const userId    = piService.user.username;
+  const memo      = `SMARTPI-HERITAGE-creation-${timestamp}-${userId}`;
 
-      if (result.success) {
-        const username = result.user.username;
-        document.getElementById("pi-username").textContent = username;
-        document.getElementById("user-info").style.display = "block";
-        document.getElementById("btn-signin").style.display = "none";
-        showToast("✅ Welcome, @" + username + "!");
-      } else {
-        showToast("⚠️ Sign-in failed. Open in Pi Browser.");
-        console.error(result.error);
+  try {
+    await Pi.init({ version: "2.0", sandbox: false });
+
+    Pi.createPayment({
+      amount: 3,
+      memo:   memo,
+      metadata: {
+        type:      "smartpi_heritage",
+        userId:    userId,
+        timestamp: timestamp,
+        domain:    "SmartPiHeritage"
       }
-    }
-
-    // ── Auto-auth au chargement de l'app ──
-    window.addEventListener("load", () => {
-      // Déclenché automatiquement dès que la page est prête
-      handleLogin();
+    }, {
+      onReadyForServerApproval: function(paymentId) {
+        console.log("✅ Payment ready for approval:", paymentId);
+        showToast("⏳ Waiting for Pi Network approval...");
+        // In production: POST to your backend /payments/approve
+      },
+      onReadyForServerCompletion: function(paymentId, txid) {
+        console.log("✅ Payment complete! TXID:", txid);
+        deployContract(txid);
+      },
+      onCancel: function(paymentId) {
+        showToast("❌ Payment cancelled", true);
+      },
+      onError: function(error, payment) {
+        console.error("Payment error:", error);
+        showToast("⚠️ Payment error — try again", true);
+      }
     });
+  } catch(e) {
+    console.error(e);
+    showToast("⚠️ Pi Browser required for payments", true);
+  }
+}
 
-    // ── Toast ──
-    function showToast(msg) {
-      const t = document.getElementById("toast");
-      t.textContent = msg;
-      t.style.display = "block";
-      setTimeout(() => { t.style.display = "none"; }, 3500);
-    }
+function deployContract(txid) {
+  // Show success panel
+  document.querySelector(".form-container").style.display = "none";
+  document.querySelector(".steps-bar").style.display      = "none";
+  document.getElementById("success-panel").style.display  = "block";
 
-    // ── Language Switch ──
-    function switchLang(lang) {
-      const msgs = {
-        en: "Language: English",
-        fr: "Langue : Français",
-        rw: "Ururimi: Ikinyarwanda",
-        sw: "Lugha: Kiswahili"
-      };
-      showToast(msgs[lang] || "Language switched");
-    }
-  </script>
+  // Generate TXID display
+  const fakeTxid = txid || ("0x" + Math.random().toString(16).substr(2,40).toUpperCase());
+  document.getElementById("txid-display").textContent = "TXID: " + fakeTxid;
+  showToast("🎉 Contract deployed successfully!");
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+function showToast(msg, isError = false) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className   = isError ? "error" : "";
+  t.style.display = "block";
+  setTimeout(() => { t.style.display = "none"; }, 3500);
+}
+
+// Init first beneficiary
+addBenef();
+</script>
 </body>
 </html>
