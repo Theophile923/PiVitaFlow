@@ -290,7 +290,7 @@
     onIncompletePaymentFound(p) { console.warn("Incomplete payment:", p.identifier); }
     async login(scopes) {
       try {
-        await Pi.init({ version: "2.0", sandbox: true });
+        await Pi.init({ version: "2.0", sandbox: false });
         const auth = await Pi.authenticate(scopes, this.onIncompletePaymentFound);
         this.user = auth.user;
         this.accessToken = auth.accessToken;
